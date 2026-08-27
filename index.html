@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>활동지원센터 일정관리</title>
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body { font-family: 'Malgun Gothic', sans-serif; background-color: #f4f7f6; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 500px; padding: 20px; box-sizing: border-box; }
+        
+        /* 공통 스타일 */
+        h1, h2 { color: #2c3e50; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; text-align: center; }
+        
+        /* 로그인 화면 */
+        #login-screen { display: flex; flex-direction: column; align-items: center; margin-top: 50px; }
+        input { width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background-color: #3498db; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; }
+        button:active { background-color: #2980b9; }
+        #loading { display: none; color: #e74c3c; margin-top: 15px; font-weight: bold; }
+
+        /* 대시보드 화면 */
+        #dashboard-screen { display: none; width: 100%; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .logout-btn { background-color: #e74c3c; padding: 8px 12px; font-size: 14px; width: auto; }
+        
+        /* 스탬프 투어 섹션 */
+        .stamp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
+        .stamp-box { border: 2px dashed #bdc3c7; border-radius: 10px; padding: 10px 5px; position: relative; min-height: 70px; display: flex; align-items: center; justify-content: center; background-color: #fcfcfc; }
+        .stamp-box.stamped { border-color: #27ae60; background-color: #eafaf1; }
+        .doc-name { font-size: 12px; font-weight: bold; color: #555; position: relative; z-index: 2; word-break: keep-all; }
+        .stamp-mark { display: none; font-size: 40px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg); opacity: 0.7; z-index: 1; }
+        .stamped .stamp-mark { display: block; }
+        
+        /* 미션 성공 배너 */
+        #successBanner { display: none; background: #f1c40f; color: #d35400; padding: 15px; border-radius: 10px; margin-bottom: 20px; font-weight: bold; font-size: 18px; animation: pop 0.5s ease; text-align: center; }
+        @keyframes pop { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        /* QR코드 & PDF 영역 */
+        #qrcode { display: flex; justify-content: center; margin-top: 10px; }
+        .pdf-container { width: 100%; height: 60vh; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        iframe { width: 100%; height: 100%; border: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- 1. 로그인 화면 -->
+    <div id="login-screen">
+        <h1>지원사 로그인</h1>
+        <input type="text" id="userName" placeholder="이름을 입력하세요" required>
+        <input type="tel" id="userPhone" placeholder="전화번호 뒷자리 (예: 5678)" required>
+        <button onclick="login()">로그인</button>
+        <div id="loading">데이터를 불러오는 중입니다...</div>
+    </div>
+
+    <!-- 2. 대시보드 메인 화면 -->
+    <div id="dashboard-screen">
+        <div class="header">
+            <h2 id="welcomeMsg"></h2>
+            <button class="logout-btn" onclick="logout()">로그아웃</button>
+        </div>
+
+        <!-- 미션 성공 배너 (모두 제출 시 등장) -->
+        <div id="successBanner">
+            🎉 축하합니다! 필수 서류 제출 미션 성공! 🎉
+        </div>
+
+        <!-- 스탬프 투어 영역 -->
+        <div class="card">
+            <h3 style="margin: 0; color: #2980b9;">📋 필수 서류 스탬프 투어</h3>
+            <div class="stamp-grid" id="stampGrid">
+                <!-- 스탬프가 자바스크립트를 통해 여기에 자동 생성됩니다 -->
+            </div>
+        </div>
+
+        <!-- 출결용 QR 코드 및 근무시간 -->
+        <div class="card">
+            <p style="font-weight: bold; margin-top:0;">📸 나의 출석 QR코드</p>
+            <div id="qrcode"></div>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+            <p>이번 달 실제 근무: <strong style="color: #27ae60; font-size: 18px;" id="realTime">0</strong> 시간</p>
+            <p>이번 달 가산 적용: <strong style="color: #f39c12; font-size: 18px;" id="extraTime">0</strong> 시간</p>
+        </div>
+
+        <!-- 주간 일정표 PDF -->
+        <div class="pdf-container">
+            <iframe id="pdfFrame" src=""></iframe>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ★★★ 앱스 스크립트에서 배포한 [웹 앱 URL]을 아래 따옴표 안에 붙여넣으세요! ★★★
+    const API_URL = "이곳에_웹앱_URL을_붙여넣으세요";
+
+    function login() {
+        const name = document.getElementById('userName').value.trim();
+        const phone = document.getElementById('userPhone').value.trim();
+        
+        if(!name || !phone) {
+            alert("이름과 전화번호 뒷자리를 모두 입력해주세요.");
+            return;
+        }
+
+        document.getElementById('loading').style.display = 'block';
+
+        fetch(`${API_URL}?name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading').style.display = 'none';
+                
+                if(data.success) {
+                    // 화면 전환 및 기본 정보 세팅
+                    document.getElementById('login-screen').style.display = 'none';
+                    document.getElementById('dashboard-screen').style.display = 'block';
+                    document.getElementById('welcomeMsg').innerText = `${name}님, 환영합니다!`;
+                    document.getElementById('realTime').innerText = data.realHours || 0;
+                    document.getElementById('extraTime').innerText = data.extraHours || 0;
+                    document.getElementById('pdfFrame').src = data.pdfLink;
+
+                    // QR코드 생성
+                    document.getElementById('qrcode').innerHTML = "";
+                    new QRCode(document.getElementById("qrcode"), {
+                        text: `${name}_${phone}`,
+                        width: 120,
+                        height: 120
+                    });
+
+                    // 스탬프 투어 생성 로직
+                    const stampGrid = document.getElementById('stampGrid');
+                    stampGrid.innerHTML = "";
+                    let allCompleted = true; // 모두 완료했는지 체크할 변수
+                    let hasDocs = false;     // 서류 항목이 하나라도 있는지 체크
+
+                    if(data.docs && data.docs.length > 0) {
+                        hasDocs = true;
+                        data.docs.forEach(doc => {
+                            if (!doc.status) allCompleted = false; 
+
+                            const box = document.createElement('div');
+                            box.className = `stamp-box ${doc.status ? 'stamped' : ''}`;
+                            box.innerHTML = `
+                                <div class="doc-name">${doc.name}</div>
+                                <div class="stamp-mark">💮</div>
+                            `;
+                            stampGrid.appendChild(box);
+                        });
+                    } else {
+                        allCompleted = false; 
+                    }
+
+                    // 모든 서류 완료 시 성공 배너 표시
+                    if(allCompleted && hasDocs) {
+                        document.getElementById('successBanner').style.display = 'block';
+                    } else {
+                        document.getElementById('successBanner').style.display = 'none';
+                    }
+
+                } else {
+                    alert("정보를 찾을 수 없습니다. 이름과 전화번호를 확인해주세요.");
+                }
+            })
+            .catch(error => {
+                document.getElementById('loading').style.display = 'none';
+                alert("네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+            });
+    }
+
+    function logout() {
+        document.getElementById('userName').value = '';
+        document.getElementById('userPhone').value = '';
+        document.getElementById('login-screen').style.display = 'flex';
+        document.getElementById('dashboard-screen').style.display = 'none';
+    }
+</script>
+
+</body>
+</html>

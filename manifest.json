@@ -1,0 +1,15 @@
+{
+  "name": "활동지원센터 스마트 일정관리",
+  "short_name": "일정/서류 앱",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3498db",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1043/1043306.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
