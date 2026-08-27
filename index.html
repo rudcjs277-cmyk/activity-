@@ -147,8 +147,16 @@
                     document.getElementById('extraTime').innerText = data.extraHours || 0;
                     document.getElementById('pdfFrame').src = data.pdfLink;
 
-                    document.getElementById('qrcode').innerHTML = "";
-                    new QRCode(document.getElementById("qrcode"), { text: `${name}_${phone}`, width: 140, height: 140 });
+                   document.getElementById('qrcode').innerHTML = "";
+// ★★★ 아래 깃허브 주소를 담당자님의 실제 깃허브 주소로 꼭 변경하세요! ★★★
+const githubUrl = "https://script.google.com/a/macros/miral.org/s/AKfycbzg94i54E6__LwcNcwqiS1ViCU2wozo_LoZ7lctFM5sEzKALTmK-U6nYCAVmUfYDoNaGQ/exec"; 
+const scanUrl = `${githubUrl}/scan.html?n=${encodeURIComponent(name)}&p=${encodeURIComponent(phone)}`;
+
+new QRCode(document.getElementById("qrcode"), { 
+    text: scanUrl, 
+    width: 140, 
+    height: 140 
+});
 
                     const stampGrid = document.getElementById('stampGrid');
                     stampGrid.innerHTML = "";
