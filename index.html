@@ -4,28 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>스마트 일정관리</title>
-    <link rel="manifest" href="manifest.json">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        /* 최신 폰트 및 배경 설정 */
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         body { font-family: 'Pretendard', sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; color: #333; }
         .container { width: 100%; max-width: 500px; padding: 20px; box-sizing: border-box; padding-bottom: 80px; }
         
-        /* 세련된 로그인 화면 (Glassmorphism 스타일) */
         #login-screen { display: flex; flex-direction: column; align-items: center; margin-top: 20vh; background: white; padding: 40px 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
         .login-title { font-size: 24px; font-weight: 700; margin-bottom: 10px; color: #1e293b; }
         .login-sub { font-size: 14px; color: #64748b; margin-bottom: 30px; }
         input { width: 100%; padding: 16px; margin-bottom: 15px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 16px; background-color: #f8fafc; box-sizing: border-box; transition: 0.3s; }
         input:focus { border-color: #3b82f6; outline: none; background-color: white; }
-        button.btn-primary { width: 100%; padding: 16px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.1s; }
+        button.btn-primary { width: 100%; padding: 16px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.1s; }
         button.btn-primary:active { transform: scale(0.98); }
 
-        /* 카드 UI 스타일 */
         .card { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 20px; }
         .card-title { font-size: 16px; font-weight: 700; color: #1e293b; margin-top: 0; margin-bottom: 15px; }
 
-        /* 대시보드 및 하단 네비게이션 */
         #dashboard-screen { display: none; width: 100%; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
@@ -33,33 +28,33 @@
         .nav-item { flex: 1; text-align: center; padding: 10px; font-size: 14px; color: #94a3b8; font-weight: 600; cursor: pointer; transition: 0.2s; }
         .nav-item.active { color: #3b82f6; }
 
-        /* 탭 화면 전환 */
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* QR 및 시간 표시 */
         #qrcode { display: flex; justify-content: center; margin: 20px 0; padding: 10px; background: #fff; border-radius: 12px; }
         .time-box { display: flex; justify-content: space-between; background: #f8fafc; padding: 15px; border-radius: 12px; margin-top: 10px; }
         .time-box div { text-align: center; width: 48%; }
         .time-label { font-size: 12px; color: #64748b; }
         .time-value { font-size: 20px; font-weight: 700; color: #0f172a; margin-top: 5px; }
 
-        /* 스탬프 투어 영역 */
         .stamp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-        .stamp-box { border: 2px dashed #cbd5e1; border-radius: 12px; padding: 15px 5px; text-align: center; position: relative; background-color: #f8fafc; min-height: 80px; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        .stamp-box { border: 2px dashed #cbd5e1; border-radius: 12px; padding: 15px 5px; text-align: center; position: relative; background-color: #f8fafc; min-height: 80px; display: flex; align-items: center; justify-content: center; }
         .stamp-box.stamped { border-color: #22c55e; background-color: #f0fdf4; }
         .doc-name { font-size: 13px; font-weight: 600; color: #475569; position: relative; z-index: 2; word-break: keep-all; }
         .stamp-mark { display: none; font-size: 45px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg); z-index: 1; opacity: 0.8; }
         .stamped .stamp-mark { display: block; }
 
-        .pdf-container { width: 100%; height: 50vh; border-radius: 16px; overflow: hidden; }
+        .pdf-container { width: 100%; height: 50vh; border-radius: 12px; overflow: hidden; background:#f1f5f9;}
         iframe { width: 100%; height: 100%; border: none; }
+        
+        .pdf-buttons { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+        .pdf-btn { flex: 1; padding: 10px; background: #e2e8f0; color: #475569; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; }
+        .pdf-btn:active, .pdf-btn.active { background: #3b82f6; color: white; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- 1. 로그인 화면 -->
     <div id="login-screen">
         <div class="login-title">활동지원사 로그인</div>
         <div class="login-sub">이름과 전화번호 뒷자리를 입력해주세요</div>
@@ -69,9 +64,7 @@
         <div id="loading" style="display:none; color:#3b82f6; margin-top:15px; font-size:14px;">데이터를 불러오는 중...</div>
     </div>
 
-    <!-- 2. 대시보드 화면 -->
     <div id="dashboard-screen">
-        <!-- 탭 1: 홈 (일정/QR) -->
         <div id="tab-home" class="tab-content active">
             <h2 style="font-size: 22px; margin-bottom: 20px;"><span id="welcomeMsg"></span>님, 안녕하세요!</h2>
             
@@ -92,39 +85,36 @@
 
             <div class="card">
                 <div class="card-title">📅 이번 주 일정표</div>
+                <div class="pdf-buttons" id="pdfBtnGroup"></div>
                 <div class="pdf-container">
                     <iframe id="pdfFrame" src=""></iframe>
                 </div>
             </div>
         </div>
 
-        <!-- 탭 2: 서류 스탬프 투어 -->
         <div id="tab-mission" class="tab-content">
             <h2 style="font-size: 22px; margin-bottom: 20px;">서류 미션 현황</h2>
-            
             <div id="successBanner" style="display:none; background:#fef08a; padding:15px; border-radius:12px; margin-bottom:20px; text-align:center; font-weight:bold; color:#854d0e;">
                 🎉 완벽해요! 모든 필수 서류를 제출하셨습니다.
             </div>
-
             <div class="card">
                 <div class="card-title">필수 서류 스탬프 투어</div>
                 <div class="stamp-grid" id="stampGrid"></div>
             </div>
-            
             <button onclick="logout()" style="width:100%; padding:15px; background:#ef4444; color:white; border:none; border-radius:12px; font-weight:bold; margin-top:20px;">로그아웃</button>
         </div>
     </div>
 </div>
 
-<!-- 하단 네비게이션 바 -->
 <div class="bottom-nav" id="bottomNav">
     <div class="nav-item active" onclick="switchTab('home')">🏠 홈 (일정)</div>
     <div class="nav-item" onclick="switchTab('mission')">💮 서류 (스탬프)</div>
 </div>
 
 <script>
-    // ★★★ 웹 앱 URL 꼭 교체하세요 ★★★
-    const API_URL = "https://script.googleusercontent.com/a/macros/miral.org/echo?user_content_key=AUkAhnQd27-GTAi-xrOmGebplAx5uD8W7kmyYjO8kn5VEqimIUNkhAPaua-A6zEAO1psxsNa5Ilpnws3xBEN_ypQuoPqLHdC4uu0dlegNwzSDjrcsnIVAH8cOqFvNv3ls83lVMXF2-S_2I0hVigg7iWQkUkT7b3uUvDaARuoXjuoaiN_42ZbKCVoDOu9ztlIBOM7gnaOmoAKXajsqBxGx7iSYFxrR8ePR9ARyu1z02kGhKntMnjY678APWTFMHfET-ZHkyrs9E7ibJNrUXR3PgfkSL__8HdHj2zmGnFF-Tfy&lib=MPX7A9RBwrjZcup3m2n0-Z1hRGYRwfiv7 ";
+    // ★★★ 아래 2개 주소를 반드시 담당자님의 주소로 변경하세요! ★★★
+    const API_URL = "https://script.google.com/macros/s/AKfycbxmhNK1Wjjt-GMhCRIFiF09xO3F79AiyKw36JrNixs_Pw6Pb1BFUssbYs03uv05pdXJpw/exec";
+    const GITHUB_URL = "https://rudcjs277-cmyk.github.io/activity-"; 
 
     function login() {
         const name = document.getElementById('userName').value.trim();
@@ -145,19 +135,31 @@
                     document.getElementById('welcomeMsg').innerText = name;
                     document.getElementById('realTime').innerText = data.realHours || 0;
                     document.getElementById('extraTime').innerText = data.extraHours || 0;
-                    document.getElementById('pdfFrame').src = data.pdfLink;
 
-                   document.getElementById('qrcode').innerHTML = "";
-// ★★★ 아래 깃허브 주소를 담당자님의 실제 깃허브 주소로 꼭 변경하세요! ★★★
-const githubUrl = "https://script.google.com/a/macros/miral.org/s/AKfycbzg94i54E6__LwcNcwqiS1ViCU2wozo_LoZ7lctFM5sEzKALTmK-U6nYCAVmUfYDoNaGQ/exec"; 
-const scanUrl = `${githubUrl}/scan.html?n=${encodeURIComponent(name)}&p=${encodeURIComponent(phone)}`;
+                    // 스캐너 연동 QR코드 생성
+                    const scanUrl = `${GITHUB_URL}/scan.html?n=${encodeURIComponent(name)}&p=${encodeURIComponent(phone)}`;
+                    document.getElementById('qrcode').innerHTML = "";
+                    new QRCode(document.getElementById("qrcode"), { text: scanUrl, width: 140, height: 140 });
 
-new QRCode(document.getElementById("qrcode"), { 
-    text: scanUrl, 
-    width: 140, 
-    height: 140 
-});
+                    // 다중 일정표 버튼 생성 로직
+                    const btnGroup = document.getElementById('pdfBtnGroup');
+                    btnGroup.innerHTML = "";
+                    let firstPdf = "";
+                    
+                    const addPdfBtn = (url, label) => {
+                        if(url) {
+                            if(!firstPdf) firstPdf = url;
+                            btnGroup.innerHTML += `<button class="pdf-btn" onclick="document.getElementById('pdfFrame').src='${url}'">${label}</button>`;
+                        }
+                    };
+                    addPdfBtn(data.pdf1, "1번 일정");
+                    addPdfBtn(data.pdf2, "2번 일정");
+                    addPdfBtn(data.pdf3, "3번 일정");
+                    
+                    if(firstPdf) document.getElementById('pdfFrame').src = firstPdf;
+                    else document.getElementById('pdfFrame').src = ""; // 일정표 없을 시 비움
 
+                    // 스탬프 투어 생성
                     const stampGrid = document.getElementById('stampGrid');
                     stampGrid.innerHTML = "";
                     let allCompleted = true;
