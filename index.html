@@ -15,8 +15,7 @@
         .login-sub { font-size: 14px; color: #64748b; margin-bottom: 30px; }
         input { width: 100%; padding: 16px; margin-bottom: 15px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 16px; background-color: #f8fafc; box-sizing: border-box; transition: 0.3s; }
         input:focus { border-color: #3b82f6; outline: none; background-color: white; }
-        button.btn-primary { width: 100%; padding: 16px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.1s; }
-        button.btn-primary:active { transform: scale(0.98); }
+        button.btn-primary { width: 100%; padding: 16px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; }
 
         .card { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 20px; }
         .card-title { font-size: 16px; font-weight: 700; color: #1e293b; margin-top: 0; margin-bottom: 15px; }
@@ -25,9 +24,8 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: white; box-shadow: 0 -4px 15px rgba(0,0,0,0.05); display: none; justify-content: space-around; padding: 10px 0; border-top-left-radius: 20px; border-top-right-radius: 20px; z-index: 100; }
-        .nav-item { flex: 1; text-align: center; padding: 10px; font-size: 14px; color: #94a3b8; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .nav-item { flex: 1; text-align: center; padding: 10px; font-size: 14px; color: #94a3b8; font-weight: 600; cursor: pointer; }
         .nav-item.active { color: #3b82f6; }
-
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
@@ -44,12 +42,8 @@
         .stamp-mark { display: none; font-size: 45px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg); z-index: 1; opacity: 0.8; }
         .stamped .stamp-mark { display: block; }
 
-        .pdf-container { width: 100%; height: 50vh; border-radius: 12px; overflow: hidden; background:#f1f5f9;}
+        .pdf-container { width: 100%; height: 50vh; border-radius: 12px; overflow: hidden; background:#f1f5f9; margin-top: 10px; }
         iframe { width: 100%; height: 100%; border: none; }
-        
-        .pdf-buttons { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-        .pdf-btn { flex: 1; padding: 10px; background: #e2e8f0; color: #475569; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; }
-        .pdf-btn:active, .pdf-btn.active { background: #3b82f6; color: white; }
     </style>
 </head>
 <body>
@@ -67,7 +61,6 @@
     <div id="dashboard-screen">
         <div id="tab-home" class="tab-content active">
             <h2 style="font-size: 22px; margin-bottom: 20px;"><span id="welcomeMsg"></span>님, 안녕하세요!</h2>
-            
             <div class="card">
                 <div class="card-title">📱 나의 출근 바코드 (QR)</div>
                 <div id="qrcode"></div>
@@ -82,10 +75,8 @@
                     </div>
                 </div>
             </div>
-
             <div class="card">
                 <div class="card-title">📅 이번 주 일정표</div>
-                <div class="pdf-buttons" id="pdfBtnGroup"></div>
                 <div class="pdf-container">
                     <iframe id="pdfFrame" src=""></iframe>
                 </div>
@@ -112,8 +103,8 @@
 </div>
 
 <script>
-    // ★★★ 아래 2개 주소를 반드시 담당자님의 주소로 변경하세요! ★★★
-    const API_URL = "https://script.google.com/macros/s/AKfycbxabS0o5Qo3BQHITnzudE5dVy-aOKv6C3uu2zKTLzcy6-jiz3Q4_lKHI3sFlFBC6kBAmQ/exec";
+    // ★★★ 새로 발급받은 API URL과 깃허브 URL 입력 ★★★
+    const API_URL = "https://script.google.com/macros/s/AKfycbwmMDqP9XqFN-0lqhroQ-P99SsUQPCi1FhqYwXmslfsRgG7NJSpvfsFGvSJ2Tj3EKnnEA/exec";
     const GITHUB_URL = "https://rudcjs277-cmyk.github.io/activity-"; 
 
     function login() {
@@ -135,31 +126,12 @@
                     document.getElementById('welcomeMsg').innerText = name;
                     document.getElementById('realTime').innerText = data.realHours || 0;
                     document.getElementById('extraTime').innerText = data.extraHours || 0;
+                    document.getElementById('pdfFrame').src = data.pdfLink || ""; // 통합 일정표 바로 표시
 
-                    // 스캐너 연동 QR코드 생성
                     const scanUrl = `${GITHUB_URL}/scan.html?n=${encodeURIComponent(name)}&p=${encodeURIComponent(phone)}`;
                     document.getElementById('qrcode').innerHTML = "";
                     new QRCode(document.getElementById("qrcode"), { text: scanUrl, width: 140, height: 140 });
 
-                    // 다중 일정표 버튼 생성 로직
-                    const btnGroup = document.getElementById('pdfBtnGroup');
-                    btnGroup.innerHTML = "";
-                    let firstPdf = "";
-                    
-                    const addPdfBtn = (url, label) => {
-                        if(url) {
-                            if(!firstPdf) firstPdf = url;
-                            btnGroup.innerHTML += `<button class="pdf-btn" onclick="document.getElementById('pdfFrame').src='${url}'">${label}</button>`;
-                        }
-                    };
-                    addPdfBtn(data.pdf1, "1번 일정");
-                    addPdfBtn(data.pdf2, "2번 일정");
-                    addPdfBtn(data.pdf3, "3번 일정");
-                    
-                    if(firstPdf) document.getElementById('pdfFrame').src = firstPdf;
-                    else document.getElementById('pdfFrame').src = ""; // 일정표 없을 시 비움
-
-                    // 스탬프 투어 생성
                     const stampGrid = document.getElementById('stampGrid');
                     stampGrid.innerHTML = "";
                     let allCompleted = true;
@@ -189,7 +161,6 @@
         document.getElementById('tab-home').classList.remove('active');
         document.getElementById('tab-mission').classList.remove('active');
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-
         if(tab === 'home') {
             document.getElementById('tab-home').classList.add('active');
             document.querySelectorAll('.nav-item')[0].classList.add('active');
@@ -198,7 +169,6 @@
             document.querySelectorAll('.nav-item')[1].classList.add('active');
         }
     }
-
     function logout() { location.reload(); }
 </script>
 </body>
