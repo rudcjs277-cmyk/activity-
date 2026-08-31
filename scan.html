@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>관리자 스캔 결과</title>
     <style>
-        body { font-family: 'Malgun Gothic', sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; padding: 20px; }
+        body { font-family: 'Pretendard', sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; padding: 20px; }
         .card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
         h1 { color: #2c3e50; font-size: 24px; margin-top: 0; }
         .info-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; text-align: left; }
@@ -19,9 +19,10 @@
 
 <div class="card">
     <h1>📋 스캔 결과</h1>
-    <div id="loading">데이터를 불러오는 중입니다...</div>
+    <div id="loading">데이터를 기록 및 불러오는 중입니다...</div>
     <div id="resultArea" style="display: none;">
-        <h2 id="empName" style="color: #3b82f6; margin-bottom: 20px;"></h2>
+        <h2 id="empName" style="color: #3b82f6; margin-bottom: 5px;"></h2>
+        <div style="font-size:14px; color:#27ae60; margin-bottom: 20px; font-weight:bold;">✓ 출퇴근 기록 완료</div>
         
         <div class="info-box">
             <div class="label">📌 당월 필요 서류</div>
@@ -41,16 +42,16 @@
 </div>
 
 <script>
-    // ★★★ 앱스 스크립트 웹 앱 URL을 붙여넣으세요 ★★★
-    const API_URL = "이곳에_웹앱_URL을_붙여넣으세요";
+    // ★★★ 1. 방금 새로 발급받으신 긴 웹 앱 URL(API 주소)을 아래 따옴표 안에 꼭 넣어주세요! ★★★
+    const API_URL = "여기에_새로_발급받은_웹앱_URL을_넣으세요";
 
-    // URL에서 이름과 번호를 빼옵니다.
     const urlParams = new URLSearchParams(window.location.search);
     const name = urlParams.get('n');
     const phone = urlParams.get('p');
 
     if(name && phone) {
-        fetch(`${API_URL}?name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}`)
+        // ★ 2. 여기가 핵심입니다! 끝에 &action=scan이 붙어있어야 엑셀 [출퇴근_기록부]에 시간이 찍힙니다.
+        fetch(`${API_URL}?name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&action=scan`)
             .then(res => res.json())
             .then(data => {
                 document.getElementById('loading').style.display = 'none';
