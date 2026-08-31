@@ -7,25 +7,56 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        body { font-family: 'Pretendard', sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; color: #333; }
-        .container { width: 100%; max-width: 500px; padding: 20px; box-sizing: border-box; padding-bottom: 80px; }
         
-        #login-screen { display: flex; flex-direction: column; align-items: center; margin-top: 20vh; background: white; padding: 40px 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .login-title { font-size: 24px; font-weight: 700; margin-bottom: 10px; color: #1e293b; }
-        .login-sub { font-size: 14px; color: #64748b; margin-bottom: 30px; }
-        input { width: 100%; padding: 16px; margin-bottom: 15px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 16px; background-color: #f8fafc; box-sizing: border-box; transition: 0.3s; }
-        input:focus { border-color: #3b82f6; outline: none; background-color: white; }
-        button.btn-primary { width: 100%; padding: 16px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; }
+        /* 🎨 밀알 메인 초록색 테마 적용 */
+        :root {
+            --main-green: #16a34a; /* 기본 초록 */
+            --dark-green: #15803d; /* 짙은 초록 */
+            --light-green: #dcfce7; /* 아주 연한 초록 (배경용) */
+        }
 
+        body { font-family: 'Pretendard', sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; color: #333; }
+        .container { width: 100%; max-width: 500px; padding: 20px; box-sizing: border-box; padding-bottom: 80px; padding-top: 70px; }
+        
+        /* 🍔 상단 헤더 & 햄버거 메뉴 */
+        #top-header { position: fixed; top: 0; left: 0; width: 100%; height: 60px; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: none; align-items: center; padding: 0 20px; box-sizing: border-box; z-index: 100; }
+        .menu-icon { font-size: 28px; cursor: pointer; color: var(--main-green); margin-right: 15px; }
+        .header-title { font-size: 18px; font-weight: 700; color: #1e293b; }
+        
+        /* 🗄️ 슬라이드 메뉴 (서랍) */
+        #side-menu { position: fixed; top: 0; left: -280px; width: 250px; height: 100vh; background: white; box-shadow: 2px 0 15px rgba(0,0,0,0.1); transition: left 0.3s ease; z-index: 200; padding: 30px 20px; box-sizing: border-box; }
+        #side-menu.open { left: 0; }
+        .menu-close { font-size: 24px; text-align: right; cursor: pointer; color: #64748b; margin-bottom: 20px; }
+        .menu-item { padding: 15px 0; border-bottom: 1px solid #f1f5f9; font-size: 16px; font-weight: 600; color: #334155; cursor: pointer; }
+        .menu-item:active { color: var(--main-green); }
+        #menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(0,0,0,0.4); z-index: 150; display: none; }
+
+        /* 🔒 로그인 화면 */
+        #login-screen { display: flex; flex-direction: column; align-items: center; margin-top: 10vh; background: white; padding: 40px 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 400px; }
+        .center-logo { width: 120px; height: auto; margin-bottom: 20px; } /* 로그인 화면 로고 */
+        .login-title { font-size: 22px; font-weight: 700; margin-bottom: 10px; color: #1e293b; text-align: center; word-break: keep-all;}
+        .login-sub { font-size: 14px; color: #64748b; margin-bottom: 30px; }
+        input { width: 100%; padding: 16px; margin-bottom: 15px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 16px; background-color: #f8fafc; box-sizing: border-box; }
+        input:focus { border-color: var(--main-green); outline: none; background-color: white; }
+        button.btn-primary { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--main-green) 0%, var(--dark-green) 100%); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; }
+
+        /* ⏳ 전체 화면 로딩 애니메이션 (로고 포함) */
+        #global-loader { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255, 255, 255, 0.9); z-index: 999; display: none; flex-direction: column; justify-content: center; align-items: center; }
+        .spinner-container { position: relative; width: 100px; height: 100px; display: flex; justify-content: center; align-items: center; }
+        .spinner { position: absolute; width: 100%; height: 100%; border: 4px solid var(--light-green); border-top: 4px solid var(--main-green); border-radius: 50%; animation: spin 1s linear infinite; }
+        .loader-logo { position: absolute; width: 50px; height: auto; z-index: 10; } /* 빙글빙글 도는 선 안의 로고 */
+        .loading-text { margin-top: 20px; font-weight: 600; color: var(--main-green); }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* 카드 및 대시보드 (기존과 동일하되 색상만 초록 계열로 변경) */
         .card { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 20px; }
         .card-title { font-size: 16px; font-weight: 700; color: #1e293b; margin-top: 0; margin-bottom: 15px; }
-
         #dashboard-screen { display: none; width: 100%; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: white; box-shadow: 0 -4px 15px rgba(0,0,0,0.05); display: none; justify-content: space-around; padding: 10px 0; border-top-left-radius: 20px; border-top-right-radius: 20px; z-index: 100; }
         .nav-item { flex: 1; text-align: center; padding: 10px; font-size: 14px; color: #94a3b8; font-weight: 600; cursor: pointer; }
-        .nav-item.active { color: #3b82f6; }
+        .nav-item.active { color: var(--main-green); }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
@@ -37,37 +68,67 @@
 
         .stamp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
         .stamp-box { border: 2px dashed #cbd5e1; border-radius: 12px; padding: 15px 5px; text-align: center; position: relative; background-color: #f8fafc; min-height: 80px; display: flex; align-items: center; justify-content: center; }
-        .stamp-box.stamped { border-color: #22c55e; background-color: #f0fdf4; }
+        .stamp-box.stamped { border-color: var(--main-green); background-color: var(--light-green); }
         .doc-name { font-size: 13px; font-weight: 600; color: #475569; position: relative; z-index: 2; word-break: keep-all; }
         .stamp-mark { display: none; font-size: 45px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg); z-index: 1; opacity: 0.8; }
         .stamped .stamp-mark { display: block; }
-
         .pdf-container { width: 100%; height: 50vh; border-radius: 12px; overflow: hidden; background:#f1f5f9; margin-top: 10px; }
         iframe { width: 100%; height: 100%; border: none; }
     </style>
 </head>
 <body>
 
-<div class="container">
+<!-- 전체 화면 로딩 (로고 + 스피너) -->
+<div id="global-loader">
+    <div class="spinner-container">
+        <div class="spinner"></div>
+        <!-- 💡 로딩 화면용 로고 이미지 -->
+<img src="https://i.postimg.cc/Pq53xkMH/mil-aljang-aeinhwaldongjiwonsenteo-gibon-color.png" class="loader-logo" alt="밀알로고" onerror="this.style.display='none'">
+        
+    </div>
+    <div class="loading-text">안전하게 연결 중입니다...</div>
+</div>
+
+<!-- 상단 헤더 (햄버거 메뉴) -->
+<div id="top-header">
+    <div class="menu-icon" onclick="toggleMenu()">≡</div>
+    <div class="header-title">밀알 일정관리</div>
+</div>
+
+<!-- 좌측 슬라이드 메뉴 -->
+<div id="menu-overlay" onclick="toggleMenu()"></div>
+<div id="side-menu">
+    <div class="menu-close" onclick="toggleMenu()">✕</div>
+    <div class="menu-item" onclick="switchTab('home'); toggleMenu();">🏠 홈 (일정표)</div>
+    <div class="menu-item" onclick="switchTab('mission'); toggleMenu();">💮 서류 제출 확인</div>
+    <div class="menu-item" onclick="alert('준비 중인 기능입니다.');">📢 공지사항</div>
+    <div class="menu-item" style="color: #ef4444; margin-top: 20px;" onclick="logout()">로그아웃</div>
+</div>
+
+<div class="container" id="main-container" style="padding-top:20px;">
+    <!-- 로그인 화면 -->
     <div id="login-screen">
-        <div class="login-title">활동지원사 로그인</div>
+        <!-- 💡 로그인 화면용 큰 로고 이미지 -->
+<img src="https://i.postimg.cc/Pq53xkMH/mil-aljang-aeinhwaldongjiwonsenteo-gibon-color.png" class="center-logo" alt="밀알장애인활동지원센터" onerror="this.style.display='none'">
+        
+        <div class="login-title">밀알장애인활동지원센터</div>
         <div class="login-sub">이름과 전화번호 뒷자리를 입력해주세요</div>
         <input type="text" id="userName" placeholder="이름 (예: 홍길동)">
         <input type="tel" id="userPhone" placeholder="전화번호 뒷자리 (예: 5678)">
-        <button class="btn-primary" onclick="login()">시작하기</button>
-        <div id="loading" style="display:none; color:#3b82f6; margin-top:15px; font-size:14px;">데이터를 불러오는 중...</div>
+        <button class="btn-primary" onclick="loginProcess(false)">시작하기</button>
     </div>
 
+    <!-- 대시보드 (일정 및 스탬프) -->
     <div id="dashboard-screen">
         <div id="tab-home" class="tab-content active">
-            <h2 style="font-size: 22px; margin-bottom: 20px;"><span id="welcomeMsg"></span>님, 안녕하세요!</h2>
+            <h2 style="font-size: 22px; margin-bottom: 20px;"><span id="welcomeMsg"></span> 선생님,<br>오늘도 좋은 하루 되세요! 🌿</h2>
             <div class="card">
                 <div class="card-title">📱 나의 출근 바코드 (QR)</div>
                 <div id="qrcode"></div>
                 <div class="time-box">
                     <div>
                         <div class="time-label">이번 달 실제 근무</div>
-                        <div class="time-value"><span id="realTime" style="color:#3b82f6;">0</span>h</div>
+                        <div class="time-value"><span id="realTime" style="color:var(--main-green);">0</span>h</div>
                     </div>
                     <div>
                         <div class="time-label">이번 달 가산 적용</div>
@@ -76,7 +137,7 @@
                 </div>
             </div>
             <div class="card">
-                <div class="card-title">📅 이번 주 일정표</div>
+                <div class="card-title">📅 통합 일정표</div>
                 <div class="pdf-container">
                     <iframe id="pdfFrame" src=""></iframe>
                 </div>
@@ -85,53 +146,93 @@
 
         <div id="tab-mission" class="tab-content">
             <h2 style="font-size: 22px; margin-bottom: 20px;">서류 미션 현황</h2>
-            <div id="successBanner" style="display:none; background:#fef08a; padding:15px; border-radius:12px; margin-bottom:20px; text-align:center; font-weight:bold; color:#854d0e;">
+            <div id="successBanner" style="display:none; background:var(--light-green); padding:15px; border-radius:12px; margin-bottom:20px; text-align:center; font-weight:bold; color:var(--dark-green);">
                 🎉 완벽해요! 모든 필수 서류를 제출하셨습니다.
             </div>
             <div class="card">
                 <div class="card-title">필수 서류 스탬프 투어</div>
                 <div class="stamp-grid" id="stampGrid"></div>
             </div>
-            <button onclick="logout()" style="width:100%; padding:15px; background:#ef4444; color:white; border:none; border-radius:12px; font-weight:bold; margin-top:20px;">로그아웃</button>
         </div>
     </div>
 </div>
 
 <div class="bottom-nav" id="bottomNav">
-    <div class="nav-item active" onclick="switchTab('home')">🏠 홈 (일정)</div>
-    <div class="nav-item" onclick="switchTab('mission')">💮 서류 (스탬프)</div>
+    <div class="nav-item active" onclick="switchTab('home')">🏠 홈</div>
+    <div class="nav-item" onclick="switchTab('mission')">💮 서류</div>
 </div>
 
 <script>
-    // ★★★ 새로 발급받은 API URL과 깃허브 URL 입력 ★★★
-    const API_URL = "https://script.google.com/macros/s/AKfycbytGkJgzP_D7sAvW847BZpjBYajoLwkTNdjDwJ1ZsF0XcwQhtVXKuFf7bjK-mwCVV-5Cg/exec";
+    // ★★★ 앱스 스크립트 웹앱 주소 및 깃허브 주소 필수 입력! ★★★
+    const API_URL = "여기에_새로_발급받은_웹앱_URL을_넣으세요";
     const GITHUB_URL = "https://rudcjs277-cmyk.github.io/activity-"; 
 
-    function login() {
+    // 🔄 새로고침 방어: 앱 실행 시 금고(localStorage) 확인
+    window.onload = function() {
+        const savedName = localStorage.getItem('milal_name');
+        const savedPhone = localStorage.getItem('milal_phone');
+        
+        if (savedName && savedPhone) {
+            document.getElementById('userName').value = savedName;
+            document.getElementById('userPhone').value = savedPhone;
+            loginProcess(true); // 자동 로그인 실행
+        }
+    };
+
+    // 햄버거 메뉴 열기/닫기
+    function toggleMenu() {
+        const menu = document.getElementById('side-menu');
+        const overlay = document.getElementById('menu-overlay');
+        if(menu.classList.contains('open')) {
+            menu.classList.remove('open');
+            overlay.style.display = 'none';
+        } else {
+            menu.classList.add('open');
+            overlay.style.display = 'block';
+        }
+    }
+
+    // 통신 및 로그인 처리
+    function loginProcess(isAutoLogin) {
         const name = document.getElementById('userName').value.trim();
         const phone = document.getElementById('userPhone').value.trim();
-        if(!name || !phone) return alert("입력칸을 모두 채워주세요.");
         
-        document.getElementById('loading').style.display = 'block';
+        if(!name || !phone) {
+            if(!isAutoLogin) alert("입력칸을 모두 채워주세요.");
+            return;
+        }
+        
+        // ⏳ 멋진 로딩 화면 띄우기
+        document.getElementById('global-loader').style.display = 'flex';
 
         fetch(`${API_URL}?name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}`)
             .then(res => res.json())
             .then(data => {
-                document.getElementById('loading').style.display = 'none';
+                document.getElementById('global-loader').style.display = 'none';
+                
                 if(data.success) {
+                    // ★ 비밀 금고에 저장 (자동 로그인을 위해)
+                    localStorage.setItem('milal_name', name);
+                    localStorage.setItem('milal_phone', phone);
+
+                    // UI 전환
                     document.getElementById('login-screen').style.display = 'none';
+                    document.getElementById('top-header').style.display = 'flex';
+                    document.getElementById('main-container').style.paddingTop = '70px';
                     document.getElementById('dashboard-screen').style.display = 'block';
                     document.getElementById('bottomNav').style.display = 'flex';
                     
                     document.getElementById('welcomeMsg').innerText = name;
                     document.getElementById('realTime').innerText = data.realHours || 0;
                     document.getElementById('extraTime').innerText = data.extraHours || 0;
-                    document.getElementById('pdfFrame').src = data.pdfLink || ""; // 통합 일정표 바로 표시
+                    document.getElementById('pdfFrame').src = data.pdfLink || ""; 
 
+                    // QR 코드 생성
                     const scanUrl = `${GITHUB_URL}/scan.html?n=${encodeURIComponent(name)}&p=${encodeURIComponent(phone)}`;
                     document.getElementById('qrcode').innerHTML = "";
-                    new QRCode(document.getElementById("qrcode"), { text: scanUrl, width: 140, height: 140 });
+                    new QRCode(document.getElementById("qrcode"), { text: scanUrl, width: 140, height: 140, colorDark: "#16a34a" }); // QR도 초록색!
 
+                    // 스탬프 생성
                     const stampGrid = document.getElementById('stampGrid');
                     stampGrid.innerHTML = "";
                     let allCompleted = true;
@@ -150,13 +251,19 @@
                         });
                     } else { allCompleted = false; }
                     document.getElementById('successBanner').style.display = (allCompleted && hasDocs) ? 'block' : 'none';
-                } else { alert("정보를 찾을 수 없습니다."); }
+                } else { 
+                    // 실패 시 금고 비우기
+                    localStorage.removeItem('milal_name');
+                    localStorage.removeItem('milal_phone');
+                    if(!isAutoLogin) alert("정보를 찾을 수 없습니다. 이름과 번호를 확인해주세요."); 
+                }
             }).catch(e => {
-                document.getElementById('loading').style.display = 'none';
-                alert("통신 오류가 발생했습니다.");
+                document.getElementById('global-loader').style.display = 'none';
+                if(!isAutoLogin) alert("통신 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
             });
     }
 
+    // 탭 전환
     function switchTab(tab) {
         document.getElementById('tab-home').classList.remove('active');
         document.getElementById('tab-mission').classList.remove('active');
@@ -169,7 +276,13 @@
             document.querySelectorAll('.nav-item')[1].classList.add('active');
         }
     }
-    function logout() { location.reload(); }
+
+    // 로그아웃 (비밀 금고 비우기)
+    function logout() { 
+        localStorage.removeItem('milal_name');
+        localStorage.removeItem('milal_phone');
+        location.reload(); 
+    }
 </script>
 </body>
 </html>
