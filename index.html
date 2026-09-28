@@ -3,22 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>밀알 스마트 일정관리</title>
+    <title>밀알 스마트 지원센터</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css");
-        
-        :root {
-            --main-green: #16a34a; 
-            --dark-green: #15803d; 
-            --light-green: #dcfce7; 
-            --bg-gray: #f4f6f9;
-        }
-
+        :root { --main-green: #16a34a; --dark-green: #15803d; --light-green: #dcfce7; --bg-gray: #f4f6f9; }
         body { font-family: 'Pretendard', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; color: #333; }
         .container { width: 100%; max-width: 500px; padding: 20px; box-sizing: border-box; padding-bottom: 80px; padding-top: 70px; }
         
-        /* 🍔 헤더 & 사이드 메뉴 */
         #top-header { position: fixed; top: 0; left: 0; width: 100%; height: 60px; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: none; align-items: center; padding: 0 20px; box-sizing: border-box; z-index: 100; }
         .menu-icon { font-size: 28px; cursor: pointer; color: var(--main-green); margin-right: 15px; }
         .header-title { font-size: 18px; font-weight: 700; color: #1e293b; }
@@ -27,65 +19,59 @@
         #side-menu.open { left: 0; }
         .menu-close { font-size: 24px; text-align: right; cursor: pointer; color: #64748b; margin-bottom: 20px; }
         .menu-item { padding: 15px 0; border-bottom: 1px solid #f1f5f9; font-size: 16px; font-weight: 600; color: #334155; cursor: pointer; display: flex; align-items: center; gap: 10px; }
-        .menu-item:active { color: var(--main-green); }
         #menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(0,0,0,0.4); z-index: 150; display: none; }
 
-        /* 🔒 로그인 */
         #login-screen { display: flex; flex-direction: column; align-items: center; margin-top: 10vh; background: white; padding: 40px 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 400px; }
         .center-logo { width: 200px; height: auto; margin-bottom: 20px; } 
         input { width: 100%; padding: 16px; margin-bottom: 15px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 16px; background-color: #f8fafc; box-sizing: border-box; }
         button.btn-primary { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--main-green) 0%, var(--dark-green) 100%); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; }
 
-        /* 공통 카드 스타일 */
         .card { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 20px; }
         .tab-content { display: none; animation: fadeIn 0.3s ease; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* 📱 홈 - QR 및 시간 */
         #qrcode { display: flex; justify-content: center; margin: 15px 0; }
         .time-box { display: flex; justify-content: space-between; background: #f8fafc; padding: 15px; border-radius: 12px; margin-top: 15px; }
         .time-box div { text-align: center; width: 48%; }
         .time-label { font-size: 12px; color: #64748b; }
         .time-value { font-size: 22px; font-weight: 700; margin-top: 5px; }
 
-        /* 🗂️ 2x2 대시보드 그리드 */
         .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
-        .dash-btn { background: white; border-radius: 16px; padding: 20px 15px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.04); cursor: pointer; transition: transform 0.2s; border: 1px solid #f1f5f9; }
-        .dash-btn:active { transform: scale(0.97); }
+        .dash-btn { background: white; border-radius: 16px; padding: 20px 15px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.04); cursor: pointer; border: 1px solid #f1f5f9; }
         .dash-icon { font-size: 24px; margin-bottom: 10px; }
         .dash-title { font-size: 15px; font-weight: 700; color: #1e293b; }
         .dash-sub { font-size: 12px; color: #94a3b8; margin-top: 4px; }
 
-        /* 🧩 퍼즐 디자인 (완성 전 초록테두리 ➔ 완성 후 사라짐) */
         .stamp-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; border-radius: 12px; overflow: hidden; margin-top: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .stamp-box { position: relative; background-color: #f8fafc; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid var(--main-green); }
-        
-        /* 퍼즐이 모두 완성되었을 때 선을 없애는 마법의 클래스 */
         .stamp-grid.completed .stamp-box { border: none !important; }
-
         .piece-top { grid-column: span 3; aspect-ratio: 3 / 2; } 
         .piece-bottom { grid-column: span 2; aspect-ratio: 1 / 1; } 
         .doc-name { font-size: 13px; font-weight: 700; color: var(--dark-green); position: relative; z-index: 2; word-break: keep-all; text-align: center; }
 
-        /* 게시판 UI */
         .notice-list { list-style: none; padding: 0; margin: 0; }
         .notice-item { padding: 15px 0; border-bottom: 1px solid #e2e8f0; }
         .notice-title { font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 5px; }
         .notice-date { font-size: 12px; color: #94a3b8; }
-        
         .pdf-container { width: 100%; height: 60vh; border-radius: 12px; overflow: hidden; background:#f1f5f9; }
         iframe { width: 100%; height: 100%; border: none; }
+
+        /* 로딩 스피너 */
+        #global-loader { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255,255,255,0.9); z-index: 999; display: none; flex-direction: column; justify-content: center; align-items: center; }
+        .spinner { width: 50px; height: 50px; border: 4px solid var(--light-green); border-top: 4px solid var(--main-green); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
+
+<div id="global-loader"><div class="spinner"></div><div style="margin-top:15px; color:var(--main-green); font-weight:bold;">처리 중입니다...</div></div>
 
 <div id="top-header">
     <div class="menu-icon" onclick="toggleMenu()">≡</div>
     <div class="header-title">밀알 스마트 지원센터</div>
 </div>
 
-<!-- 좌측 메뉴 (돋보기 아이콘 반영) -->
 <div id="menu-overlay" onclick="toggleMenu()"></div>
 <div id="side-menu">
     <div class="menu-close" onclick="toggleMenu()">✕</div>
@@ -98,116 +84,58 @@
 </div>
 
 <div class="container" id="main-container">
-    <!-- 로그인 화면 -->
     <div id="login-screen">
-        <img src="https://i.postimg.cc/Pq53xkMH/mil-aljang-aeinhwaldongjiwonsenteo-gibon-color.png" class="center-logo" alt="밀알로고" onerror="this.style.display='none'">
+        <img src="https://i.postimg.cc/Pq53xkMH/mil-aljang-aeinhwaldongjiwonsenteo-gibon-color.png" alt="밀알로고" onerror="this.style.display='none'">
         <input type="text" id="userName" placeholder="이름 (예: 홍길동)">
         <input type="tel" id="userPhone" placeholder="전화번호 뒷자리">
         <button class="btn-primary" onclick="loginProcess()">시작하기</button>
     </div>
 
-    <!-- 대시보드 탭 영역 -->
+    <!-- 🛠️ 관리자 전용 대시보드 (기본 숨김) -->
+    <div id="admin-dashboard-screen" class="tab-content">
+        <h2 style="font-size: 22px; margin-bottom: 20px;">⚙️ 관리자 설정</h2>
+        <div class="card">
+            <div style="font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 10px;">💵 시급 단가 관리</div>
+            <div style="font-size:13px; color:#64748b; margin-bottom:15px;">해마다 변경되는 시급을 이곳에서 수정하세요. (스프레드시트 '설정' 시트 B1칸에 즉시 반영됩니다)</div>
+            <input type="number" id="adminRateInput" placeholder="단가 불러오는 중..." style="font-weight:bold; color:var(--main-green);">
+            <button class="btn-primary" onclick="updateAdminRate()" style="margin-top:10px;">저장 및 적용하기</button>
+        </div>
+        <button class="btn-primary" style="background:#64748b; margin-top:10px;" onclick="logout()">로그아웃 (나가기)</button>
+    </div>
+
+    <!-- 일반 사용자 대시보드 -->
     <div id="dashboard-screen" style="display:none;">
-        
-        <!-- 1. 홈 탭 (QR + 2x2 그리드) -->
         <div id="tab-home" class="tab-content active">
             <h2 style="font-size: 22px; margin-bottom: 15px;"><span id="welcomeMsg"></span> 선생님,<br>오늘도 좋은 하루 되세요! 🌿</h2>
-            
             <div class="card">
-                <div style="font-weight:700; color:#1e293b; display:flex; align-items:center; gap:8px;">
-                    <span>📱</span> 나의 출근 바코드 (QR)
-                </div>
+                <div style="font-weight:700; color:#1e293b; display:flex; align-items:center; gap:8px;"><span>📱</span> 나의 출근 바코드 (QR)</div>
                 <div id="qrcode"></div>
                 <div class="time-box">
-                    <div>
-                        <div class="time-label">이번 달 실제 근무</div>
-                        <div class="time-value" style="color:var(--main-green);"><span id="realTime">0</span>h</div>
-                    </div>
-                    <div>
-                        <div class="time-label">이번 달 가산 적용</div>
-                        <div class="time-value" style="color:#f59e0b;"><span id="extraTime">0</span>h</div>
-                    </div>
+                    <div><div class="time-label">이번 달 실제 근무</div><div class="time-value" style="color:var(--main-green);"><span id="realTime">0</span>h</div></div>
+                    <div><div class="time-label">이번 달 가산 적용</div><div class="time-value" style="color:#f59e0b;"><span id="extraTime">0</span>h</div></div>
                 </div>
             </div>
-
-            <!-- 최신 트렌드 2x2 메뉴 -->
             <div class="dashboard-grid">
-                <div class="dash-btn" onclick="switchTab('schedule')">
-                    <div class="dash-icon">📅</div>
-                    <div class="dash-title">일정표 확인</div>
-                    <div class="dash-sub">월간 일정 조회</div>
-                </div>
-                <div class="dash-btn" onclick="switchTab('mission')">
-                    <div class="dash-icon">🔍</div>
-                    <div class="dash-title">서류제출 확인</div>
-                    <div class="dash-sub">필수서류 현황</div>
-                </div>
-                <div class="dash-btn" onclick="switchTab('magazine')">
-                    <div class="dash-icon">📰</div>
-                    <div class="dash-title">밀알 월간지</div>
-                    <div class="dash-sub">재단 소식지</div>
-                </div>
-                <div class="dash-btn" onclick="switchTab('notice')">
-                    <div class="dash-icon">📢</div>
-                    <div class="dash-title">공지사항</div>
-                    <div class="dash-sub">센터 주요 알림</div>
-                </div>
+                <div class="dash-btn" onclick="switchTab('schedule')"><div class="dash-icon">📅</div><div class="dash-title">일정표 확인</div><div class="dash-sub">월간 일정 조회</div></div>
+                <div class="dash-btn" onclick="switchTab('mission')"><div class="dash-icon">🔍</div><div class="dash-title">서류제출 확인</div><div class="dash-sub">필수서류 현황</div></div>
+                <div class="dash-btn" onclick="switchTab('magazine')"><div class="dash-icon">📰</div><div class="dash-title">밀알 월간지</div><div class="dash-sub">재단 소식지</div></div>
+                <div class="dash-btn" onclick="switchTab('notice')"><div class="dash-icon">📢</div><div class="dash-title">공지사항</div><div class="dash-sub">센터 주요 알림</div></div>
             </div>
         </div>
 
-        <!-- 2. 일정표 탭 -->
-        <div id="tab-schedule" class="tab-content">
-            <h2 style="font-size: 20px;">📅 통합 일정표</h2>
-            <div class="pdf-container">
-                <iframe id="pdfFrame" src=""></iframe>
-            </div>
-        </div>
-
-        <!-- 3. 서류 확인 탭 (퍼즐) -->
+        <div id="tab-schedule" class="tab-content"><h2 style="font-size: 20px;">📅 통합 일정표</h2><div class="pdf-container"><iframe id="pdfFrame" src=""></iframe></div></div>
         <div id="tab-mission" class="tab-content">
             <h2 style="font-size: 20px;">🔍 필수 서류 퍼즐</h2>
-            <div id="successBanner" style="display:none; background:var(--light-green); padding:15px; border-radius:12px; margin-bottom:15px; text-align:center; font-weight:bold; color:var(--dark-green);">
-                🎉 완벽해요! 모든 서류가 확인되었습니다.
-            </div>
+            <div id="successBanner" style="display:none; background:var(--light-green); padding:15px; border-radius:12px; margin-bottom:15px; text-align:center; font-weight:bold; color:var(--dark-green);">🎉 완벽해요! 모든 서류가 확인되었습니다.</div>
             <div class="stamp-grid" id="stampGrid"></div>
         </div>
-
-        <!-- 4. 월간지 탭 -->
-        <div id="tab-magazine" class="tab-content">
-            <h2 style="font-size: 20px;">📰 밀알 월간지</h2>
-            <div class="card" style="text-align:center; padding: 40px 20px;">
-                <div style="font-size: 40px; margin-bottom: 10px;">🌿</div>
-                <div style="font-size: 18px; font-weight: bold; color: var(--main-green);">2026년 9월호</div>
-                <div style="color: #64748b; margin-top: 10px; font-size: 14px;">이번 달 밀알의 따뜻한 소식들을 준비 중입니다.</div>
-            </div>
-        </div>
-
-        <!-- 5. 공지사항 탭 -->
-        <div id="tab-notice" class="tab-content">
-            <h2 style="font-size: 20px;">📢 공지사항</h2>
-            <div class="card" style="padding: 0 20px;">
-                <ul class="notice-list">
-                    <li class="notice-item">
-                        <div class="notice-title">추석 연휴 근무 가이드라인 안내</div>
-                        <div class="notice-date">2026.09.20</div>
-                    </li>
-                    <li class="notice-item">
-                        <div class="notice-title">필수서류 제출 기한 연장 안내 (9/30까지)</div>
-                        <div class="notice-date">2026.09.15</div>
-                    </li>
-                    <li class="notice-item" style="border:none;">
-                        <div class="notice-title">스마트 일정관리 앱 오픈 안내</div>
-                        <div class="notice-date">2026.09.01</div>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
+        <div id="tab-magazine" class="tab-content"><h2 style="font-size: 20px;">📰 밀알 월간지</h2><div class="card" style="text-align:center; padding: 40px 20px;"><div style="font-size: 40px; margin-bottom: 10px;">🌿</div><div style="font-size: 18px; font-weight: bold; color: var(--main-green);">2026년 9월호</div><div style="color: #64748b; margin-top: 10px; font-size: 14px;">이번 달 밀알의 따뜻한 소식들을 준비 중입니다.</div></div></div>
+        <div id="tab-notice" class="tab-content"><h2 style="font-size: 20px;">📢 공지사항</h2><div class="card" style="padding: 0 20px;"><ul class="notice-list"><li class="notice-item"><div class="notice-title">추석 연휴 근무 가이드라인 안내</div><div class="notice-date">2026.09.20</div></li><li class="notice-item"><div class="notice-title">필수서류 제출 기한 연장 안내 (9/30까지)</div><div class="notice-date">2026.09.15</div></li><li class="notice-item" style="border:none;"><div class="notice-title">스마트 일정관리 앱 오픈 안내</div><div class="notice-date">2026.09.01</div></li></ul></div></div>
     </div>
 </div>
 
 <script>
-    const API_URL = "https://docs.google.com/spreadsheets/d/1gaB2LXGY30QosuKmBkzjLPwhfkvNKswEQD7X-iCZb88/edit?gid=2120038547#gid=2120038547";
+    const API_URL = "https://script.google.com/macros/s/AKfycby37dmQrNWYni0mJCrCJoLyiOQvAo5GDd9s5h3Za2YO1-hVPro8-UfsKXmqnOucwF8B5A/exec";
     const GITHUB_URL = "https://github.com/rudcjs277-cmyk/activity-"; 
     const LOGO_URL = "https://i.postimg.cc/Pq53xkMH/mil-aljang-aeinhwaldongjiwonsenteo-gibon-color.png"; 
 
@@ -224,38 +152,47 @@
         window.scrollTo(0, 0);
     }
 
-    function formatTime(val) {
-        // 소수점이 .0으로 떨어지면 정수로, 아니면 소수점 표기
-        return (val % 1 === 0) ? val : parseFloat(val).toFixed(1);
-    }
-
     function loginProcess() {
         const name = document.getElementById('userName').value.trim();
         const phone = document.getElementById('userPhone').value.trim();
         if(!name || !phone) return alert("입력칸을 모두 채워주세요.");
         
+        document.getElementById('global-loader').style.display = 'flex';
+
+        // 🚨 관리자 특별 로그인 로직
+        if(name === "관리자" && phone === "0000") {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('admin-dashboard-screen').classList.add('active');
+            
+            fetch(`${API_URL}?action=adminLoad`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('global-loader').style.display = 'none';
+                    if(data.success) document.getElementById('adminRateInput').value = data.rate;
+                });
+            return;
+        }
+
+        // 일반 사용자 로그인 로직
         fetch(`${API_URL}?name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}`)
             .then(res => res.json())
             .then(data => {
+                document.getElementById('global-loader').style.display = 'none';
                 if(data.success) {
                     document.getElementById('login-screen').style.display = 'none';
                     document.getElementById('top-header').style.display = 'flex';
                     document.getElementById('dashboard-screen').style.display = 'block';
-                    
                     document.getElementById('welcomeMsg').innerText = name;
                     
-                    // 정수 및 소수점 포맷팅 적용
-                    document.getElementById('realTime').innerText = formatTime(data.realHours || 0);
-                    document.getElementById('extraTime').innerText = formatTime(data.extraHours || 0);
+                    document.getElementById('realTime').innerText = (data.realHours % 1 === 0) ? data.realHours : parseFloat(data.realHours).toFixed(1);
+                    document.getElementById('extraTime').innerText = (data.extraHours % 1 === 0) ? data.extraHours : parseFloat(data.extraHours).toFixed(1);
                     document.getElementById('pdfFrame').src = data.pdfLink || ""; 
 
                     new QRCode(document.getElementById("qrcode"), { text: `${GITHUB_URL}/scan.html?n=${encodeURIComponent(name)}&p=${encodeURIComponent(phone)}`, width: 150, height: 150, colorDark: "#16a34a" }); 
 
-                    // 퍼즐 로직
                     const stampGrid = document.getElementById('stampGrid');
                     stampGrid.innerHTML = "";
-                    let allCompleted = true;
-                    let hasDocs = false;
+                    let allCompleted = true; let hasDocs = false;
 
                     const puzzleConfig = [
                         { class: 'piece-top', size: '200% 300%', pos: '0% 0%' },     
@@ -271,9 +208,7 @@
                     if(data.docs && data.docs.length > 0) {
                         hasDocs = true;
                         for (let i = 0; i < 8; i++) {
-                            let doc = data.docs[i];
-                            let conf = puzzleConfig[i];
-                            
+                            let doc = data.docs[i]; let conf = puzzleConfig[i];
                             if (doc) {
                                 if (!doc.status) allCompleted = false;
                                 let bgStyle = doc.status ? `background-image: url('${LOGO_URL}'); background-size: ${conf.size}; background-position: ${conf.pos};` : '';
@@ -283,12 +218,30 @@
                         }
                     } else { allCompleted = false; }
                     
-                    // ★ 퍼즐이 모두 완성되면 그리드 전체에 completed 클래스를 추가하여 선을 없앰
                     if (allCompleted && hasDocs) {
                         document.getElementById('successBanner').style.display = 'block';
                         stampGrid.classList.add('completed');
                     }
                 } else { alert("정보를 찾을 수 없습니다."); }
+            }).catch(e => {
+                document.getElementById('global-loader').style.display = 'none';
+                alert("통신 오류가 발생했습니다.");
+            });
+    }
+
+    // 관리자 단가 업데이트 함수
+    function updateAdminRate() {
+        const newRate = document.getElementById('adminRateInput').value;
+        if(!newRate) return alert("단가를 입력해주세요.");
+        
+        document.getElementById('global-loader').style.display = 'flex';
+        fetch(`${API_URL}?action=adminUpdate&rate=${newRate}`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('global-loader').style.display = 'none';
+                if(data.success) {
+                    alert("단가가 성공적으로 업데이트되었습니다! 선생님들의 근무 시간에 즉시 반영됩니다.");
+                }
             });
     }
     
