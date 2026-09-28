@@ -22,9 +22,15 @@
         #menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(0,0,0,0.4); z-index: 150; display: none; }
 
         #login-screen { display: flex; flex-direction: column; align-items: center; margin-top: 10vh; background: white; padding: 40px 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 400px; }
-        .center-logo { width: 130px; height: auto; margin-bottom: 25px; } 
-        input { width: 100%; padding: 16px; margin-bottom: 15px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 16px; background-color: #f8fafc; box-sizing: border-box; }
-        button.btn-primary { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--main-green) 0%, var(--dark-green) 100%); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; }
+        .center-logo { width: 90%; max-width: 260px; height: auto; margin-bottom: 25px; object-fit: contain; }
+        input[type="text"], input[type="password"] { width: 100%; padding: 16px; margin-bottom: 15px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 16px; background-color: #f8fafc; box-sizing: border-box; font-family: 'Pretendard', sans-serif; }
+        
+        /* 로그인 유지 체크박스 스타일 */
+        .checkbox-container { width: 100%; display: flex; align-items: center; margin-bottom: 20px; padding-left: 5px; }
+        .checkbox-container input { width: 18px; height: 18px; margin: 0 8px 0 0; cursor: pointer; accent-color: var(--main-green); }
+        .checkbox-container label { font-size: 14px; color: #64748b; cursor: pointer; }
+
+        button.btn-primary { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--main-green) 0%, var(--dark-green) 100%); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; }
 
         .card { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 20px; }
         .tab-content { display: none; animation: fadeIn 0.3s ease; }
@@ -50,14 +56,30 @@
         .piece-bottom { grid-column: span 2; aspect-ratio: 1 / 1; } 
         .doc-name { font-size: 13px; font-weight: 700; color: var(--dark-green); position: relative; z-index: 2; word-break: keep-all; text-align: center; }
 
+        .pdf-container { width: 100%; height: 50vh; border-radius: 12px; overflow: hidden; background:#f1f5f9; margin-top: 15px; }
+        iframe { width: 100%; height: 100%; border: none; }
+        .month-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
+        .month-btn { padding: 10px 0; background: white; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-weight: 600; color: #475569; cursor: pointer; text-align: center; transition: all 0.2s; }
+        .month-btn.active { background: var(--main-green); color: white; border-color: var(--main-green); }
+        .month-btn:disabled { background: #f8fafc; color: #cbd5e1; cursor: not-allowed; border-color: #f1f5f9; }
+
         .notice-list { list-style: none; padding: 0; margin: 0; }
-        .notice-item { padding: 15px 0; border-bottom: 1px solid #e2e8f0; }
+        .notice-item { padding: 15px 0; border-bottom: 1px solid #e2e8f0; cursor: pointer; }
+        .notice-item:active { background-color: #f8fafc; }
         .notice-title { font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 5px; }
         .notice-date { font-size: 12px; color: #94a3b8; }
-        .pdf-container { width: 100%; height: 60vh; border-radius: 12px; overflow: hidden; background:#f1f5f9; }
-        iframe { width: 100%; height: 100%; border: none; }
+        .empty-notice { text-align: center; color: #94a3b8; font-size: 14px; padding: 20px 0; }
+        .btn-back-home { width: 100%; padding: 16px; background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 20px; transition: background 0.2s; }
+        .btn-back-home:active { background-color: #e2e8f0; }
 
-        /* 로딩 스피너 */
+        #notice-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(0,0,0,0.6); z-index: 999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; backdrop-filter: blur(2px); }
+        .modal-content { background: white; width: 100%; max-width: 400px; border-radius: 16px; overflow: hidden; animation: popIn 0.3s ease; display: flex; flex-direction: column; max-height: 85vh; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .modal-header { padding: 20px; border-bottom: 1px solid #e2e8f0; background: var(--main-green); color: white; position: relative; }
+        .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; line-height: 1.4; padding-right: 20px; }
+        .modal-date { font-size: 13px; color: var(--light-green); }
+        .modal-close { position: absolute; top: 15px; right: 15px; font-size: 26px; cursor: pointer; color: white; line-height: 1; }
+        .modal-body { padding: 25px 20px; font-size: 15px; line-height: 1.7; color: #334155; overflow-y: auto; white-space: pre-wrap; background: #fafafa; }
+        .btn-delete { background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: bold; margin-top: 5px; }
         #global-loader { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255,255,255,0.9); z-index: 999; display: none; flex-direction: column; justify-content: center; align-items: center; }
         .spinner { width: 50px; height: 50px; border: 4px solid var(--light-green); border-top: 4px solid var(--main-green); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -85,25 +107,39 @@
 
 <div class="container" id="main-container">
     <div id="login-screen">
-        <img src="https://i.postimg.cc/Pq53xkMH/mil-aljang-aeinhwaldongjiwonsenteo-gibon-color.png" alt="밀알로고" onerror="this.style.display='none'">
-        <input type="text" id="userName" placeholder="이름 (예: 홍길동)">
-        <input type="tel" id="userPhone" placeholder="전화번호 뒷자리">
+        <img src="https://i.postimg.cc/Pq53xkMH/mil-aljang-aeinhwaldongjiwonsenteo-gibon-color.png" class="center-logo" alt="밀알로고" onerror="this.style.display='none'">
+        <input type="text" id="userId" placeholder="아이디 입력">
+        <input type="password" id="userPw" placeholder="비밀번호 입력">
+        
+        <!-- 🟢 자동 로그인 체크박스 -->
+        <div class="checkbox-container">
+            <input type="checkbox" id="keepLogin">
+            <label for="keepLogin">로그인 상태 유지 (12시간)</label>
+        </div>
+
         <button class="btn-primary" onclick="loginProcess()">시작하기</button>
     </div>
 
-    <!-- 🛠️ 관리자 전용 대시보드 (기본 숨김) -->
     <div id="admin-dashboard-screen" class="tab-content">
         <h2 style="font-size: 22px; margin-bottom: 20px;">⚙️ 관리자 설정</h2>
         <div class="card">
             <div style="font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 10px;">💵 시급 단가 관리</div>
-            <div style="font-size:13px; color:#64748b; margin-bottom:15px;">해마다 변경되는 시급을 이곳에서 수정하세요. (스프레드시트 '설정' 시트 B1칸에 즉시 반영됩니다)</div>
-            <input type="number" id="adminRateInput" placeholder="단가 불러오는 중..." style="font-weight:bold; color:var(--main-green);">
-            <button class="btn-primary" onclick="updateAdminRate()" style="margin-top:10px;">저장 및 적용하기</button>
+            <input type="number" id="adminRateInput" placeholder="단가 불러오는 중..." style="font-weight:bold; color:var(--main-green); width:100%; padding:10px; box-sizing:border-box;">
+            <button class="btn-primary" onclick="updateAdminRate()" style="margin-top:10px;">적용하기</button>
+        </div>
+        <div class="card" style="margin-top:20px;">
+            <div style="font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 10px;">📢 공지사항 글쓰기</div>
+            <input type="text" id="adminNoticeTitle" placeholder="공지 제목 입력" style="width:100%; padding:12px; margin-bottom:10px; box-sizing:border-box;">
+            <textarea id="adminNoticeContent" placeholder="공지할 내용을 적어주세요." style="width:100%; padding:12px; margin-bottom:10px; border:1px solid #e2e8f0; border-radius:12px; font-size:15px; height:120px; resize:none; box-sizing:border-box; background-color:#f8fafc;"></textarea>
+            <button class="btn-primary" onclick="addAdminNotice()">새 공지 등록하기</button>
+            <div style="margin-top:25px; border-top:1px solid #e2e8f0; padding-top:15px;">
+                <div style="font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 10px;">등록된 공지 목록</div>
+                <ul class="notice-list" id="adminNoticeList"></ul>
+            </div>
         </div>
         <button class="btn-primary" style="background:#64748b; margin-top:10px;" onclick="logout()">로그아웃 (나가기)</button>
     </div>
 
-    <!-- 일반 사용자 대시보드 -->
     <div id="dashboard-screen" style="display:none;">
         <div id="tab-home" class="tab-content active">
             <h2 style="font-size: 22px; margin-bottom: 15px;"><span id="welcomeMsg"></span> 선생님,<br>오늘도 좋은 하루 되세요! 🌿</h2>
@@ -123,21 +159,79 @@
             </div>
         </div>
 
-        <div id="tab-schedule" class="tab-content"><h2 style="font-size: 20px;">📅 통합 일정표</h2><div class="pdf-container"><iframe id="pdfFrame" src=""></iframe></div></div>
+        <div id="tab-schedule" class="tab-content">
+            <h2 style="font-size: 20px;">📅 통합 일정표</h2>
+            <div class="month-grid" id="monthButtons"></div>
+            <div class="pdf-container">
+                <iframe id="pdfFrame" src=""></iframe>
+                <div id="noPdfMessage" style="display:none; padding: 40px 20px; text-align: center; color: #64748b; background: white; border-radius: 12px; margin-top: 15px;">해당 월의 일정표가 등록되지 않았습니다.</div>
+            </div>
+            <button class="btn-back-home" onclick="switchTab('home')">⬅ 홈으로 돌아가기</button>
+        </div>
+        
         <div id="tab-mission" class="tab-content">
             <h2 style="font-size: 20px;">🔍 필수 서류 퍼즐</h2>
             <div id="successBanner" style="display:none; background:var(--light-green); padding:15px; border-radius:12px; margin-bottom:15px; text-align:center; font-weight:bold; color:var(--dark-green);">🎉 완벽해요! 모든 서류가 확인되었습니다.</div>
             <div class="stamp-grid" id="stampGrid"></div>
+            <button class="btn-back-home" onclick="switchTab('home')">⬅ 홈으로 돌아가기</button>
         </div>
-        <div id="tab-magazine" class="tab-content"><h2 style="font-size: 20px;">📰 밀알 월간지</h2><div class="card" style="text-align:center; padding: 40px 20px;"><div style="font-size: 40px; margin-bottom: 10px;">🌿</div><div style="font-size: 18px; font-weight: bold; color: var(--main-green);">2026년 9월호</div><div style="color: #64748b; margin-top: 10px; font-size: 14px;">이번 달 밀알의 따뜻한 소식들을 준비 중입니다.</div></div></div>
-        <div id="tab-notice" class="tab-content"><h2 style="font-size: 20px;">📢 공지사항</h2><div class="card" style="padding: 0 20px;"><ul class="notice-list"><li class="notice-item"><div class="notice-title">추석 연휴 근무 가이드라인 안내</div><div class="notice-date">2026.09.20</div></li><li class="notice-item"><div class="notice-title">필수서류 제출 기한 연장 안내 (9/30까지)</div><div class="notice-date">2026.09.15</div></li><li class="notice-item" style="border:none;"><div class="notice-title">스마트 일정관리 앱 오픈 안내</div><div class="notice-date">2026.09.01</div></li></ul></div></div>
+        
+        <div id="tab-magazine" class="tab-content">
+            <h2 style="font-size: 20px;">📰 밀알 월간지</h2>
+            <div class="card" style="text-align:center; padding: 40px 20px;">
+                <div style="font-size: 40px; margin-bottom: 10px;">🌿</div>
+                <div style="font-size: 18px; font-weight: bold; color: var(--main-green);">2026년 9월호</div>
+                <div style="color: #64748b; margin-top: 10px; font-size: 14px;">이번 달 밀알의 따뜻한 소식들을 준비 중입니다.</div>
+            </div>
+            <button class="btn-back-home" onclick="switchTab('home')">⬅ 홈으로 돌아가기</button>
+        </div>
+        
+        <div id="tab-notice" class="tab-content">
+            <h2 style="font-size: 20px;">📢 공지사항</h2>
+            <div class="card" style="padding: 0 20px;">
+                <ul class="notice-list" id="userNoticeList"></ul>
+            </div>
+            <button class="btn-back-home" onclick="switchTab('home')">⬅ 홈으로 돌아가기</button>
+        </div>
+    </div>
+</div>
+
+<div id="notice-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-close" onclick="closeNotice()">×</div>
+            <div class="modal-title" id="modalTitle">공지 제목</div>
+            <div class="modal-date" id="modalDate">2026.00.00</div>
+        </div>
+        <div class="modal-body" id="modalBody">내용</div>
     </div>
 </div>
 
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycby37dmQrNWYni0mJCrCJoLyiOQvAo5GDd9s5h3Za2YO1-hVPro8-UfsKXmqnOucwF8B5A/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbyDy5Tbz1eLdrkB7bHbJPQt0AzGoPx8YmEnFr9Mg8qOroUMPyYdsLA7EyR9ffAAnFDXpA/exec";
     const GITHUB_URL = "https://github.com/rudcjs277-cmyk/activity-"; 
     const LOGO_URL = "https://i.postimg.cc/Pq53xkMH/mil-aljang-aeinhwaldongjiwonsenteo-gibon-color.png"; 
+
+    let userPdfLinks = {}; 
+    const AUTO_LOGOUT_MS = 12 * 60 * 60 * 1000; // 12시간 (밀리초 단위)
+
+    // 🟢 앱 시작 시 자동 로그인 확인
+    window.onload = function() {
+        const savedData = localStorage.getItem('milal_auto_login');
+        if(savedData) {
+            const data = JSON.parse(savedData);
+            const now = new Date().getTime();
+            // 12시간이 지나지 않았다면 자동 로그인 실행
+            if(now - data.timestamp < AUTO_LOGOUT_MS) {
+                document.getElementById('userId').value = data.id;
+                document.getElementById('userPw').value = data.pw;
+                document.getElementById('keepLogin').checked = true;
+                loginProcess(true);
+            } else {
+                localStorage.removeItem('milal_auto_login'); // 만료됨
+            }
+        }
+    };
 
     function toggleMenu() {
         const menu = document.getElementById('side-menu');
@@ -149,60 +243,114 @@
     function switchTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.getElementById('tab-' + tabId).classList.add('active');
-        window.scrollTo(0, 0);
+        window.scrollTo(0, 0); 
     }
 
-    function loginProcess() {
-        const name = document.getElementById('userName').value.trim();
-        const phone = document.getElementById('userPhone').value.trim();
-        if(!name || !phone) return alert("입력칸을 모두 채워주세요.");
+    function renderMonthButtons() {
+        const container = document.getElementById('monthButtons');
+        container.innerHTML = "";
+        let latestMonth = 0;
+        for(let m = 1; m <= 12; m++) {
+            const link = userPdfLinks[m];
+            if(link) latestMonth = m; 
+            const btn = document.createElement('button');
+            btn.className = 'month-btn'; btn.innerText = `${m}월`; btn.id = `btn-month-${m}`;
+            btn.onclick = () => showPdf(m);
+            if(!link) btn.disabled = true; 
+            container.appendChild(btn);
+        }
+        if(latestMonth > 0) showPdf(latestMonth); 
+    }
+
+    function showPdf(month) {
+        document.querySelectorAll('.month-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`btn-month-${month}`).classList.add('active');
+        const link = userPdfLinks[month];
+        const frame = document.getElementById('pdfFrame');
+        const noMsg = document.getElementById('noPdfMessage');
+        if(link) { frame.style.display = 'block'; noMsg.style.display = 'none'; frame.src = link; } 
+        else { frame.style.display = 'none'; noMsg.style.display = 'block'; }
+    }
+
+    function openNotice(title, date, content) {
+        document.getElementById('modalTitle').innerText = title;
+        document.getElementById('modalDate').innerText = date;
+        document.getElementById('modalBody').innerText = content;
+        document.getElementById('notice-modal').style.display = 'flex';
+    }
+    function closeNotice() { document.getElementById('notice-modal').style.display = 'none'; }
+
+    function renderNotices(notices, isAdmin) {
+        const listEl = document.getElementById(isAdmin ? 'adminNoticeList' : 'userNoticeList');
+        listEl.innerHTML = "";
+        if(!notices || notices.length === 0) { listEl.innerHTML = "<li class='empty-notice'>등록된 공지사항이 없습니다.</li>"; return; }
+        notices.forEach(n => {
+            if(isAdmin) {
+                listEl.innerHTML += `<li class="notice-item" style="display:flex; justify-content:space-between; align-items:center;">
+                    <div><div class="notice-title">${n.title}</div><div class="notice-date">${n.date}</div></div>
+                    <button class="btn-delete" onclick="deleteAdminNotice(${n.row})">삭제</button></li>`;
+            } else {
+                listEl.innerHTML += `<li class="notice-item" onclick="openNotice('${n.title}', '${n.date}', '${n.content.replace(/\n/g, '\\n')}')">
+                    <div class="notice-title">${n.title}</div><div class="notice-date">${n.date}</div></li>`;
+            }
+        });
+    }
+
+    // 🟢 로그인 프로세스 (isAuto 파라미터 추가)
+    function loginProcess(isAuto = false) {
+        const id = document.getElementById('userId').value.trim();
+        const pw = document.getElementById('userPw').value.trim();
+        if(!id || !pw) return alert("입력칸을 모두 채워주세요.");
         
         document.getElementById('global-loader').style.display = 'flex';
 
-        // 🚨 관리자 특별 로그인 로직
-        if(name === "관리자" && phone === "0000") {
+        if(id === "관리자" && pw === "0000") {
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('admin-dashboard-screen').classList.add('active');
-            
-            fetch(`${API_URL}?action=adminLoad`)
-                .then(res => res.json())
-                .then(data => {
-                    document.getElementById('global-loader').style.display = 'none';
-                    if(data.success) document.getElementById('adminRateInput').value = data.rate;
-                });
+            fetch(`${API_URL}?action=adminLoad`).then(res => res.json()).then(data => {
+                document.getElementById('global-loader').style.display = 'none';
+                if(data.success) { document.getElementById('adminRateInput').value = data.rate; renderNotices(data.notices, true); }
+            });
             return;
         }
 
-        // 일반 사용자 로그인 로직
-        fetch(`${API_URL}?name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}`)
+        fetch(`${API_URL}?id=${encodeURIComponent(id)}&pw=${encodeURIComponent(pw)}`)
             .then(res => res.json())
             .then(data => {
                 document.getElementById('global-loader').style.display = 'none';
                 if(data.success) {
+                    
+                    // 🟢 로그인 유지 체크 처리
+                    if(!isAuto && document.getElementById('keepLogin').checked) {
+                        const saveData = { id: id, pw: pw, timestamp: new Date().getTime() };
+                        localStorage.setItem('milal_auto_login', JSON.stringify(saveData));
+                    } else if (!isAuto && !document.getElementById('keepLogin').checked) {
+                        localStorage.removeItem('milal_auto_login');
+                    }
+
                     document.getElementById('login-screen').style.display = 'none';
                     document.getElementById('top-header').style.display = 'flex';
                     document.getElementById('dashboard-screen').style.display = 'block';
-                    document.getElementById('welcomeMsg').innerText = name;
+                    
+                    // 서버에서 받아온 진짜 '이름(A열)'을 화면에 표시
+                    document.getElementById('welcomeMsg').innerText = data.name;
                     
                     document.getElementById('realTime').innerText = (data.realHours % 1 === 0) ? data.realHours : parseFloat(data.realHours).toFixed(1);
                     document.getElementById('extraTime').innerText = (data.extraHours % 1 === 0) ? data.extraHours : parseFloat(data.extraHours).toFixed(1);
-                    document.getElementById('pdfFrame').src = data.pdfLink || ""; 
 
-                    new QRCode(document.getElementById("qrcode"), { text: `${GITHUB_URL}/scan.html?n=${encodeURIComponent(name)}&p=${encodeURIComponent(phone)}`, width: 150, height: 150, colorDark: "#16a34a" }); 
+                    // QR코드에도 이름과 아이디 정보를 담아서 생성
+                    new QRCode(document.getElementById("qrcode"), { text: `${GITHUB_URL}/scan.html?id=${encodeURIComponent(id)}&n=${encodeURIComponent(data.name)}`, width: 150, height: 150, colorDark: "#16a34a" }); 
+
+                    if(data.pdfLinks) { userPdfLinks = data.pdfLinks; renderMonthButtons(); }
 
                     const stampGrid = document.getElementById('stampGrid');
                     stampGrid.innerHTML = "";
                     let allCompleted = true; let hasDocs = false;
-
                     const puzzleConfig = [
-                        { class: 'piece-top', size: '200% 300%', pos: '0% 0%' },     
-                        { class: 'piece-top', size: '200% 300%', pos: '100% 0%' },   
-                        { class: 'piece-bottom', size: '300% 300%', pos: '0% 50%' }, 
-                        { class: 'piece-bottom', size: '300% 300%', pos: '50% 50%' },
-                        { class: 'piece-bottom', size: '300% 300%', pos: '100% 50%' },
-                        { class: 'piece-bottom', size: '300% 300%', pos: '0% 100%' }, 
-                        { class: 'piece-bottom', size: '300% 300%', pos: '50% 100%' },
-                        { class: 'piece-bottom', size: '300% 300%', pos: '100% 100%' }
+                        { class: 'piece-top', size: '200% 300%', pos: '0% 0%' }, { class: 'piece-top', size: '200% 300%', pos: '100% 0%' },   
+                        { class: 'piece-bottom', size: '300% 300%', pos: '0% 50%' }, { class: 'piece-bottom', size: '300% 300%', pos: '50% 50%' },
+                        { class: 'piece-bottom', size: '300% 300%', pos: '100% 50%' }, { class: 'piece-bottom', size: '300% 300%', pos: '0% 100%' }, 
+                        { class: 'piece-bottom', size: '300% 300%', pos: '50% 100%' }, { class: 'piece-bottom', size: '300% 300%', pos: '100% 100%' }
                     ];
 
                     if(data.docs && data.docs.length > 0) {
@@ -217,35 +365,41 @@
                             }
                         }
                     } else { allCompleted = false; }
-                    
-                    if (allCompleted && hasDocs) {
-                        document.getElementById('successBanner').style.display = 'block';
-                        stampGrid.classList.add('completed');
-                    }
-                } else { alert("정보를 찾을 수 없습니다."); }
+                    if (allCompleted && hasDocs) { document.getElementById('successBanner').style.display = 'block'; stampGrid.classList.add('completed'); }
+
+                    renderNotices(data.notices, false);
+                } else { 
+                    alert("아이디 또는 비밀번호가 올바르지 않습니다."); 
+                    localStorage.removeItem('milal_auto_login'); // 실패 시 저장된 정보 삭제
+                }
             }).catch(e => {
-                document.getElementById('global-loader').style.display = 'none';
-                alert("통신 오류가 발생했습니다.");
+                document.getElementById('global-loader').style.display = 'none'; alert("통신 오류가 발생했습니다.");
             });
     }
 
-    // 관리자 단가 업데이트 함수
     function updateAdminRate() {
         const newRate = document.getElementById('adminRateInput').value;
         if(!newRate) return alert("단가를 입력해주세요.");
-        
         document.getElementById('global-loader').style.display = 'flex';
-        fetch(`${API_URL}?action=adminUpdate&rate=${newRate}`)
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('global-loader').style.display = 'none';
-                if(data.success) {
-                    alert("단가가 성공적으로 업데이트되었습니다! 선생님들의 근무 시간에 즉시 반영됩니다.");
-                }
-            });
+        fetch(`${API_URL}?action=adminUpdate&rate=${newRate}`).then(res => res.json()).then(data => { document.getElementById('global-loader').style.display = 'none'; if(data.success) alert("단가가 업데이트되었습니다!"); });
+    }
+    function addAdminNotice() {
+        const title = document.getElementById('adminNoticeTitle').value.trim(); const content = document.getElementById('adminNoticeContent').value.trim();
+        if(!title || !content) return alert("제목과 내용을 모두 입력해주세요.");
+        document.getElementById('global-loader').style.display = 'flex';
+        fetch(`${API_URL}?action=addNotice&title=${encodeURIComponent(title)}&content=${encodeURIComponent(content)}`).then(res => res.json()).then(data => { if(data.success) { alert("공지가 등록되었습니다!"); location.reload(); } });
+    }
+    function deleteAdminNotice(row) {
+        if(!confirm("이 공지를 삭제하시겠습니까?")) return;
+        document.getElementById('global-loader').style.display = 'flex';
+        fetch(`${API_URL}?action=deleteNotice&row=${row}`).then(res => res.json()).then(data => { if(data.success) { alert("삭제되었습니다."); location.reload(); } });
     }
     
-    function logout() { location.reload(); }
+    // 🟢 로그아웃 시 자동 로그인 기록 완전히 삭제
+    function logout() { 
+        localStorage.removeItem('milal_auto_login');
+        location.reload(); 
+    }
 </script>
 </body>
 </html>
